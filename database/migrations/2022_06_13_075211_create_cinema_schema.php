@@ -37,7 +37,127 @@ class CreateCinemaSchema extends Migration
      */
     public function up()
     {
-        throw new \Exception('implement in coding task 4, you can ignore this exception if you are just running the initial migrations.');
+        // throw new \Exception('implement in coding task 4, you can ignore this exception if you are just running the initial migrations.');
+        Schema::create('cinema_seating_master', function($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('seat_no_from');
+            $table->string('seat_no_to');
+            $table->timestamps();
+        });
+        
+        /*Sample Data
+        {
+            id: 1,
+            name: Premiuim/Gold/Silver,
+            seat_no_from: 1,
+            seat_no_to: 50,
+            created_at: '2022-10-10',
+            updated_at: null
+        } */       
+
+        Schema::create('cinema', function($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('city');
+            $table->integer('total_seats');
+            $table->string('seating_type'); // Comma separted values of cinema_seating_master
+            $table->timestamps();
+        });
+
+        /*Sample Data
+        {
+            id: 1,
+            name: PVR/INOX,
+            city: LA/Berlin,
+            total_seats: 200,
+            seating_type: 1,2
+            created_at: '2022-10-10'
+            updated_at: null
+        } */
+
+        Schema::create('movies', function($table) {
+            $table->increments('id');
+            $table->string('movie_name');
+            $table->text('description');
+            $table->timestamps();
+        });
+
+        /*Sample Data
+        {
+            id: 1,
+            movie_name: Titanic/Inception,
+            description: This movie is blah blah...,
+            created_at: '2022-10-10'
+            updated_at: null
+        } */
+
+        Schema::create('movie_shows', function($table) {
+            $table->increments('id');
+            $table->integer('movie_id')->unsigned();
+            $table->foreign('movie_id')->references('id')->on('movies');
+            $table->integer('cinema_id')->unsigned();
+            $table->foreign('cinema_id')->references('id')->on('cinema');
+            $table->time('show_start_time');
+            $table->time('show_end_time');
+            $table->timestamps();
+        });
+
+        /*Sample Data
+        {
+            id: 1,
+            movie_id: 1,
+            cinema_id: 1,
+            show_start_time: 2:00:00,
+            show_end_time: 5:00:00,
+            created_at: '2022-10-10'
+            updated_at: null
+        } */
+
+        Schema::create('movie_show_pricing', function($table) {
+            $table->increments('id');
+            $table->integer('movie_show_id')->unsigned();
+            $table->foreign('movie_show_id')->references('id')->on('movie_shows');
+            $table->integer('cinema_master_id')->unsigned();
+            $table->foreign('cinema_master_id')->references('id')->on('cinema');
+            $table->float('price',20,2);
+            $table->timestamps();
+        });
+
+        /*Sample Data
+        {
+            id: 1,
+            movie_show_id: 1,
+            cinema_master_id: 1,
+            price: 500.00,
+            created_at: '2022-10-10'
+            updated_at: null
+        } */
+
+        Schema::create('booking', function($table) {
+            $table->increments('id');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->integer('movie_show_id')->unsigned();
+            $table->foreign('movie_show_id')->references('id')->on('movie_shows');
+            $table->integer('movie_show_pricing_id')->unsigned();
+            $table->foreign('movie_show_pricing_id')->references('id')->on('movie_show_pricing');
+            $table->date('date');
+            $table->integer('seat_no');
+            $table->timestamps();
+        });
+
+        /*Sample Data
+        {
+            id: 1,
+            user_id: 1,
+            movie_show_id: 1,
+            movie_show_pricing_id: 1,
+            date: '2022-10-10',
+            seat_no: 34,
+            created_at: '2022-10-10'
+            updated_at: null
+        } */
     }
 
     /**
